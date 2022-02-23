@@ -5,6 +5,8 @@ const {
   models: { User },
 } = require("../db");
 
+const BASE_URL = process.env.BASE_URL || "";
+
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
@@ -22,7 +24,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/v1/auth/google/callback",
+      callbackURL: BASE_URL + "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -48,7 +50,7 @@ router
   .get(
     "/",
     (req, res, next) => {
-      if (req.user) res.redirect("/user");
+      if (req.user) res.redirect(BASE_URL + "/user");
       else next();
     },
     passport.authenticate("google", { scope: ["profile"] })
@@ -57,7 +59,7 @@ router
     "/callback",
     passport.authenticate("google", { failureRedirect: "/" }),
     (req, res) => {
-      res.redirect("/user");
+      res.redirect(BASE_URL + "/user");
     }
   );
 
