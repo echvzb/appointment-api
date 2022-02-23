@@ -13,7 +13,7 @@
     "passport-google-oauth20": "^2.0.0"
   },
   "scripts": {
-    "dev": "nodemon",
+    "dev": "nodemon index.js",
     "start": "node index.js"
   },
   "devDependencies": {
