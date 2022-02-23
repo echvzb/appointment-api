@@ -2,6 +2,7 @@ const express = require("express");
 const logger = require("morgan");
 const session = require("express-session");
 const passport = require("passport");
+const cors = require("./cors");
 
 if (process.env.NODE_ENV !== "production") require("dotenv").config();
 
@@ -12,6 +13,7 @@ const routes = require("./routes");
 db.start();
 
 app
+  .use(cors)
   .use(logger("dev"))
   .use(
     session({
