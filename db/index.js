@@ -9,6 +9,4 @@ exports.start = async () => {
   }
 };
 
-exports.models = {
-  User: require("./models/user"),
-};
+exports.models = require("./models");
