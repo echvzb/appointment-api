@@ -1,6 +1,7 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const passport = require("passport");
-const router = require("express").Router();
+const authRouter = require("express").Router();
+const googleAuthRouter = require("express").Router();
 const {
   models: { User },
 } = require("../db");
@@ -46,7 +47,7 @@ passport.use(
   )
 );
 
-router
+googleAuthRouter
   .get(
     "/",
     (req, res, next) => {
@@ -63,4 +64,6 @@ router
     }
   );
 
-module.exports = router;
+authRouter.use("/google", googleAuthRouter);
+
+module.exports = authRouter;

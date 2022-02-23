@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-router.use("/auth/google", require("./auth"));
+router.use("/auth", require("./auth"));
 
 router.get("/user", (req, res) => {
   if (!req.user) res.status(401).json({ error: "Unauthorized" });
