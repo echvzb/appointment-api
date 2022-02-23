@@ -21,7 +21,7 @@ app
     })
   )
   .use(passport.authenticate("session"))
-  .use(routes);
+  .use("/api/v1", routes);
 
 const PORT = process.env.PORT || 8000;
 
