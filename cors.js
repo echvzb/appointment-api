@@ -9,7 +9,7 @@ const originsAllowed = [
 const allowCors = cors({
   origin: originsAllowed,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowCredentials: true,
+  credentials: true,
 });
 
 module.exports = allowCors;

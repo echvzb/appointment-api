@@ -1,8 +1,9 @@
 const express = require("express");
 const logger = require("morgan");
-const session = require("express-session");
+const session = require("cookie-session");
 const passport = require("passport");
 const cors = require("./cors");
+const cookieParser = require("cookie-parser");
 
 if (process.env.NODE_ENV !== "production") require("dotenv").config();
 
@@ -17,11 +18,12 @@ app
   .use(logger("dev"))
   .use(
     session({
+      name: "session",
       secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
+      maxAge: 24 * 60 * 60 * 1000,
     })
   )
+  .use(cookieParser())
   .use(passport.authenticate("session"))
   .use("/api/v1", routes);
 
