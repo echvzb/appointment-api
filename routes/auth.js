@@ -48,19 +48,32 @@ passport.use(
 );
 
 googleAuthRouter
-  .get(
-    "/",
-    (req, res, next) => {
-      if (req.user) res.redirect(BASE_URL + "/user");
-      else next();
-    },
-    passport.authenticate("google", { scope: ["profile"] })
-  )
+  .get("/", (req, res, next) => {
+    if (req.user) res.redirect(BASE_URL + "/user");
+    else {
+      const state = Buffer.from(JSON.stringify(req.query)).toString("base64");
+      const authenticator = passport.authenticate("google", {
+        scope: ["profile"],
+        state,
+      });
+      authenticator(req, res, next);
+    }
+  })
   .get(
     "/callback",
-    passport.authenticate("google", { failureRedirect: "/" }),
+    passport.authenticate("google", {
+      failureRedirect: "/",
+    }),
     (req, res) => {
-      res.redirect(BASE_URL + "/user");
+      const { state } = req.query;
+      if (state) {
+        const stateJSON = JSON.parse(
+          Buffer.from(state, "base64").toString("utf8")
+        );
+        res.redirect(stateJSON.origin);
+      } else {
+        res.redirect(BASE_URL + "/user");
+      }
     }
   );
 
