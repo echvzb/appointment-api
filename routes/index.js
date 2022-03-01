@@ -3,8 +3,12 @@ const router = require("express").Router();
 router.use("/auth", require("./auth"));
 
 router.get("/user", (req, res) => {
-  if (!req.user) res.status(401).json({ error: "Unauthorized" });
-  else res.json({ user: req.user, cookies: req.cookies });
+  if (!req.user) {
+    res.status(401).json({ error: "Unauthorized" });
+  } else {
+    const { name, image } = req.user;
+    res.json({ name, image });
+  }
 });
 router.get("/logout", (req, res) => {
   if (req.user) {
