@@ -70,6 +70,8 @@ googleAuthRouter
         const stateJSON = JSON.parse(
           Buffer.from(state, "base64").toString("utf8")
         );
+        res.cookie("session", req.cookies.session);
+        res.cookie("session.sig", req.cookies["session.sig"]);
         res.redirect(stateJSON.origin);
       } else {
         res.redirect(BASE_URL + "/user");
