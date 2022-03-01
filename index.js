@@ -21,6 +21,7 @@ app
       name: "session",
       secret: process.env.SESSION_SECRET,
       maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
     })
   )
   .use(cookieParser())
