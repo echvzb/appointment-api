@@ -2,6 +2,27 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const passport = require("passport");
 const authRouter = require("express").Router();
 const googleAuthRouter = require("express").Router();
+const jwt = require("jsonwebtoken");
+const JWTstrategy = require("passport-jwt").Strategy;
+const ExtractJWT = require("passport-jwt").ExtractJwt;
+
+passport.use(
+  new JWTstrategy(
+    {
+      secretOrKey: process.env.SESSION_SECRET,
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    },
+    async (token, done) => {
+      try {
+        const user = await User.findById(token.id); 
+        return done(null, user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
+
 const {
   models: { User },
 } = require("../db");
@@ -70,9 +91,14 @@ googleAuthRouter
         const stateJSON = JSON.parse(
           Buffer.from(state, "base64").toString("utf8")
         );
-        res.cookie("session", req.cookies.session);
-        res.cookie("session.sig", req.cookies["session.sig"]);
-        res.redirect(stateJSON.origin);
+        const token = jwt.sign(
+          { id: req.user._id },
+          process.env.SESSION_SECRET,
+          {
+            expiresIn: 60 * 60 * 24,
+          }
+        );
+        res.redirect(stateJSON.origin + "?token=" + token);
       } else {
         res.redirect(BASE_URL + "/user");
       }

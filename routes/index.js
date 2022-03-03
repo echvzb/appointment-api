@@ -1,8 +1,11 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
+const protectedRouter = express.Router();
+const passport = require("passport");
 
-router.use("/auth", require("./auth"));
+protectedRouter.use(passport.authenticate("jwt", { session: false }));
 
-router.get("/user", (req, res) => {
+protectedRouter.get("/user", (req, res) => {
   if (!req.user) {
     res.status(401).json({ error: "Unauthorized" });
   } else {
@@ -10,13 +13,8 @@ router.get("/user", (req, res) => {
     res.json({ name, image });
   }
 });
-router.get("/logout", (req, res) => {
-  if (req.user) {
-    req.logout();
-  } else {
-    res.status(401);
-  }
-  res.end();
-});
+
+router.use("/auth", require("./auth"));
+router.use(protectedRouter);
 
 module.exports = router;
