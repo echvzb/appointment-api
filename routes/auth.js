@@ -49,15 +49,17 @@ passport.use(
       callbackURL: BASE_URL + "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
+      const newUserData = {
+        googleId: profile.id,
+        name: profile.displayName,
+        image: profile.photos[0].value,
+        accessToken,
+        refreshToken,
+      };
       try {
         const user = await User.findOne({ googleId: profile.id });
         if (!user) {
-          const newUser = await User.create({
-            googleId: profile.id,
-            name: profile.displayName,
-            image: profile.photos[0].value,
-            accessToken,
-          });
+          const newUser = await User.create(newUserData);
           done(null, newUser);
         } else {
           for (const key in newUserData) {
