@@ -11,8 +11,12 @@ calendarRouter.get("/", async (req, res) => {
     access_token: accessToken,
   });
   const calendar = google.calendar({ version: "v3", auth: oauth20Client });
-  const calendarList = await calendar.calendarList.list();
-  res.json(calendarList.data.items);
+  try {
+    const calendarList = await calendar.calendarList.list();
+    res.json(calendarList.data.items);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = calendarRouter;
