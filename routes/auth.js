@@ -53,6 +53,7 @@ passport.use(
         googleId: profile.id,
         name: profile.displayName,
         image: profile.photos[0].value,
+        email: profile.emails[0].value,
         accessToken,
         refreshToken,
       };
@@ -82,6 +83,7 @@ googleAuthRouter
       const state = Buffer.from(JSON.stringify(req.query)).toString("base64");
       const authenticator = passport.authenticate("google", {
         scope: [
+          "email",
           "profile",
           "https://www.googleapis.com/auth/calendar",
           "https://www.googleapis.com/auth/calendar.events",
