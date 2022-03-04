@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
   name: String,
   image: String,
   accessToken: String,
+  refreshToken: String,
 });
 
 const User = mongoose.model("User", UserSchema);
