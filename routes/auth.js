@@ -14,7 +14,7 @@ passport.use(
     },
     async (token, done) => {
       try {
-        const user = await User.findById(token.id); 
+        const user = await User.findById(token.id);
         return done(null, user);
       } catch (error) {
         done(error);
@@ -74,7 +74,11 @@ googleAuthRouter
     else {
       const state = Buffer.from(JSON.stringify(req.query)).toString("base64");
       const authenticator = passport.authenticate("google", {
-        scope: ["profile"],
+        scope: [
+          "profile",
+          "https://www.googleapis.com/auth/calendar",
+          "https://www.googleapis.com/auth/calendar.events",
+        ],
         state,
       });
       authenticator(req, res, next);
