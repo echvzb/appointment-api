@@ -14,6 +14,8 @@ protectedRouter.get("/user", (req, res) => {
   }
 });
 
+protectedRouter.use("/calendar", require("./calendar"));
+
 router.use("/auth", require("./auth"));
 router.use(protectedRouter);
 

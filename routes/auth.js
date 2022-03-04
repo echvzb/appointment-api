@@ -66,7 +66,7 @@ passport.use(
             user[key] = newUserData[key];
           }
           await user.save();
-          user.done(null, user);
+          done(null, user);
         }
       } catch (err) {
         done(err);
