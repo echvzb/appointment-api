@@ -64,7 +64,9 @@ passport.use(
           done(null, newUser);
         } else {
           for (const key in newUserData) {
-            user[key] = newUserData[key];
+            if (newUserData[key]) {
+              user[key] = newUserData[key];
+            }
           }
           await user.save();
           done(null, user);
@@ -88,6 +90,7 @@ googleAuthRouter
           "https://www.googleapis.com/auth/calendar",
           "https://www.googleapis.com/auth/calendar.events",
         ],
+        accessType: "offline",
         state,
       });
       authenticator(req, res, next);
