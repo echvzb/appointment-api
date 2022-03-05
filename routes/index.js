@@ -9,8 +9,8 @@ protectedRouter.get("/user", (req, res) => {
   if (!req.user) {
     res.status(401).json({ error: "Unauthorized" });
   } else {
-    const { name, image } = req.user;
-    res.json({ name, image });
+    const { profile } = req.user;
+    res.json(profile);
   }
 });
 

@@ -51,11 +51,15 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       const newUserData = {
         googleId: profile.id,
-        name: profile.displayName,
-        image: profile.photos[0].value,
-        email: profile.emails[0].value,
-        accessToken,
-        refreshToken,
+        profile: {
+          name: profile.displayName,
+          image: profile.photos[0].value,
+          email: profile.emails[0].value,
+        },
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
       };
       try {
         const user = await User.findOne({ googleId: profile.id });
@@ -63,11 +67,9 @@ passport.use(
           const newUser = await User.create(newUserData);
           done(null, newUser);
         } else {
-          for (const key in newUserData) {
-            if (newUserData[key]) {
-              user[key] = newUserData[key];
-            }
-          }
+          user.profile = newUserData.profile;
+          if (refreshToken) user.tokens = newUserData.tokens;
+          else user.tokens.accessToken = accessToken;
           await user.save();
           done(null, user);
         }
