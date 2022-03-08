@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
   googleId: String,
+  calendarId: String,
   profile: {
     name: String,
     image: String,

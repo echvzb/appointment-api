@@ -5,6 +5,8 @@ const googleAuthRouter = require("express").Router();
 const jwt = require("jsonwebtoken");
 const JWTstrategy = require("passport-jwt").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
+const { google } = require("googleapis");
+const { getOAuth2Client } = require("../utils/authClient");
 
 passport.use(
   new JWTstrategy(
@@ -61,10 +63,24 @@ passport.use(
           refreshToken,
         },
       };
+      const oauth2Client = getOAuth2Client(newUserData.tokens);
+      const calendar = google.calendar({
+        version: "v3",
+        auth: oauth2Client,
+      });
+      const summary = "Appointment App";
       try {
         const user = await User.findOne({ googleId: profile.id });
         if (!user) {
-          const newUser = await User.create(newUserData);
+          const newCalendar = await calendar.calendars.insert({
+            resource: {
+              summary,
+            },
+          });
+          const newUser = await User.create({
+            ...newUserData,
+            calendarId: newCalendar.data.id,
+          });
           done(null, newUser);
         } else {
           user.profile = newUserData.profile;
@@ -74,6 +90,7 @@ passport.use(
           done(null, user);
         }
       } catch (err) {
+        console.error(err);
         done(err);
       }
     }
