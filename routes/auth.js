@@ -68,15 +68,15 @@ passport.use(
         version: "v3",
         auth: oauth2Client,
       });
-      const summary = "Appointment App";
+      const params = {
+        resource: {
+          summary: "Appointment App",
+        },
+      };
       try {
         const user = await User.findOne({ googleId: profile.id });
         if (!user) {
-          const newCalendar = await calendar.calendars.insert({
-            resource: {
-              summary,
-            },
-          });
+          const newCalendar = await calendar.calendars.insert(params);
           const newUser = await User.create({
             ...newUserData,
             calendarId: newCalendar.data.id,
@@ -86,11 +86,14 @@ passport.use(
           user.profile = newUserData.profile;
           if (refreshToken) user.tokens = newUserData.tokens;
           else user.tokens.accessToken = accessToken;
+          if (!user.calendarId) {
+            const newCalendar = await calendar.calendars.insert(params);
+            user.calendarId = newCalendar.data.id;
+          }
           await user.save();
           done(null, user);
         }
       } catch (err) {
-        console.error(err);
         done(err);
       }
     }
