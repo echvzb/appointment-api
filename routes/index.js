@@ -5,8 +5,6 @@ const passport = require("passport");
 
 protectedRouter.use(passport.authenticate("jwt", { session: false }));
 
-protectedRouter
-
 protectedRouter.use("/calendar", require("./calendar"));
 protectedRouter.use("/user", require("./user"));
 
