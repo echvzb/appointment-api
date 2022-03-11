@@ -23,4 +23,18 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.get("/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById(userId, "profile");
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+    } else {
+      res.json(user.profile);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
