@@ -4,22 +4,27 @@ const { getOAuth2Client } = require("../utils/authClient");
 const formatRFC3339 = require("date-fns/formatRFC3339");
 const sub = require("date-fns/sub");
 const add = require("date-fns/add");
+const {
+  models: { User },
+} = require("../db");
 
-calendarRouter.get("/", async (req, res) => {
-  const { tokens } = req.user;
-  const { date } = req.query;
-  const parsedDate = new Date(date);
-  parsedDate.setHours(0, 0, 0, 0);
-  const today = parsedDate.getDay();
-
-  const firstDayOfTheWeek = sub(parsedDate, { days: today });
-  const lastDayOfTheWeek = add(firstDayOfTheWeek, { days: 6 });
-  lastDayOfTheWeek.setHours(23, 59, 59, 999);
-
-  const oauth20Client = getOAuth2Client(tokens);
-  const calendar = google.calendar({ version: "v3", auth: oauth20Client });
-
+calendarRouter.get("/:userId", async (req, res) => {
   try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    const { tokens } = user;
+    const { date } = req.query;
+    const parsedDate = new Date(date);
+    parsedDate.setHours(0, 0, 0, 0);
+    const today = parsedDate.getDay();
+
+    const firstDayOfTheWeek = sub(parsedDate, { days: today });
+    const lastDayOfTheWeek = add(firstDayOfTheWeek, { days: 6 });
+    lastDayOfTheWeek.setHours(23, 59, 59, 999);
+
+    const oauth20Client = getOAuth2Client(tokens);
+    const calendar = google.calendar({ version: "v3", auth: oauth20Client });
+
     const ownersEvents = await calendar.events.list({
       calendarId: "primary",
       timeMin: formatRFC3339(firstDayOfTheWeek),
