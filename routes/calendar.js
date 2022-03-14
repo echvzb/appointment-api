@@ -83,7 +83,7 @@ calendarRouter.get("/:userId", async (req, res) => {
         events[day].push(event);
       }
     }
-    res.json(events);
+    res.json({events, items});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
