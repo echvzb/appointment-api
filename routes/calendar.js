@@ -7,6 +7,7 @@ const add = require("date-fns/add");
 const {
   models: { User },
 } = require("../db");
+const { parseGoogleDate } = require("../utils/date");
 
 calendarRouter.get("/:userId", async (req, res) => {
   try {
@@ -14,11 +15,10 @@ calendarRouter.get("/:userId", async (req, res) => {
     const user = await User.findById(userId);
     const { tokens } = user;
     const { date } = req.query;
-    const parsedDate = new Date(date);
-    parsedDate.setHours(0, 0, 0, 0);
-    const today = parsedDate.getDay();
+    const [year, month, day] = date.split("-");
+    const parsedDate = new Date(Date.UTC(+year, +month - 1, +day, 0, 0, 0, 0));
 
-    const firstDayOfTheWeek = sub(parsedDate, { days: today });
+    const firstDayOfTheWeek = sub(parsedDate, { days: day });
     const lastDayOfTheWeek = add(firstDayOfTheWeek, { days: 6 });
     lastDayOfTheWeek.setHours(23, 59, 59, 999);
 
@@ -39,8 +39,8 @@ calendarRouter.get("/:userId", async (req, res) => {
 
     for (const item of items) {
       if (item.start.dateTime) {
-        const start = new Date(item.start.dateTime);
-        const end = new Date(item.end.dateTime);
+        const start = parseGoogleDate(item.start.dateTime);
+        const end = parseGoogleDate(item.end.dateTime);
         const day = start.getDay();
         const currentDayEventsLength = events[day].length;
         const prevEvent =
