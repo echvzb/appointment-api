@@ -18,7 +18,7 @@ calendarRouter.get("/:userId", async (req, res) => {
     const [year, month, day] = date.split("-");
     const parsedDate = new Date(Date.UTC(+year, +month - 1, +day, 0, 0, 0, 0));
 
-    const firstDayOfTheWeek = sub(parsedDate, { days: day });
+    const firstDayOfTheWeek = sub(parsedDate, { days: parsedDate.getDay() });
     const lastDayOfTheWeek = add(firstDayOfTheWeek, { days: 6 });
     lastDayOfTheWeek.setHours(23, 59, 59, 999);
 
