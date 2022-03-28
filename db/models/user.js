@@ -2,7 +2,10 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
   googleId: String,
-  calendarId: String,
+  config: {
+    appointmentCalendarId: String,
+    timeZone: String,
+  },
   profile: {
     name: String,
     image: String,

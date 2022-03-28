@@ -77,19 +77,21 @@ passport.use(
         const user = await User.findOne({ googleId: profile.id });
         if (!user) {
           const newCalendar = await calendar.calendars.insert(params);
+          const primaryCalendar = await calendar.calendars.get({
+            calendarId: "primary",
+          });
           const newUser = await User.create({
             ...newUserData,
-            calendarId: newCalendar.data.id,
+            config: {
+              timeZone: primaryCalendar.data.timeZone,
+              appointmentCalendarId: newCalendar.data.id,
+            },
           });
           done(null, newUser);
         } else {
           user.profile = newUserData.profile;
           if (refreshToken) user.tokens = newUserData.tokens;
           else user.tokens.accessToken = accessToken;
-          if (!user.calendarId) {
-            const newCalendar = await calendar.calendars.insert(params);
-            user.calendarId = newCalendar.data.id;
-          }
           await user.save();
           done(null, user);
         }
