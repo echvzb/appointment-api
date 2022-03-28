@@ -16,8 +16,10 @@ router.get("/config", (req, res) => {
   if (!req.user) {
     res.status(401).json({ error: "Unauthorized" });
   } else {
-    const { config } = req.user;
-    res.json(config);
+    const {
+      config: { timeZone },
+    } = req.user;
+    res.json({ timeZone });
   }
 });
 
