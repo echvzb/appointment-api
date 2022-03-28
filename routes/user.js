@@ -30,17 +30,17 @@ router.patch("/config", async (req, res) => {
     } else {
       const { config } = req.user;
       const { config: newConfig } = req.body;
-      let isEqual = false;
-      for (const key of Object.keys(config)) {
-        if (config[key] !== newConfig[key]) {
-          isEqual = false;
+      const user = await User.findById(req.user.id);
+      let isError = false;
+      for (const key of Object.keys(newConfig)) {
+        if (!(key in config)) {
+          res.status(400);
+          isError = true;
           break;
         }
+        user.config[key] = newConfig[key];
       }
-      if (isEqual) res.status(400);
-      else {
-        const user = await User.findById(req.user.id);
-        user.config = newConfig;
+      if (!isError) {
         await user.save();
       }
       res.end();
