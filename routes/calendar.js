@@ -41,7 +41,16 @@ calendarRouter.get("/:userId", async (req, res) => {
     const events = [[], [], [], [], [], [], []];
 
     for (const item of items) {
-      if (item.start.dateTime) {
+      let isDeclined = false;
+      for (const attendee of item.attendees) {
+        if (attendee.self) {
+          if (attendee.responseStatus === "declined") {
+            isDeclined = true;
+          }
+          break;
+        }
+      }
+      if (item.start.dateTime && !isDeclined) {
         const start = parseGoogleDate(item.start.dateTime);
         const end = parseGoogleDate(item.end.dateTime);
         const day = start.getDay();
