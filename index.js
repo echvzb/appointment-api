@@ -12,6 +12,8 @@ const routes = require("./routes");
 db.start();
 
 app
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
   .use(cors)
   .use(logger("dev"))
   .use(passport.initialize())

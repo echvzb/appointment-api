@@ -11,7 +11,7 @@ if (process.env.NODE_ENV !== "production") {
 
 const allowCors = cors({
   origin: originsAllowed,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   credentials: true,
 });
 
