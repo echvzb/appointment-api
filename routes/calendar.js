@@ -118,18 +118,16 @@ calendarRouter.post("/:userId/event", async (req, res) => {
     } = req.user;
 
     const { date } = req.body;
-    const start = getDateFromDateString(date);
+    const start = getDateFromDateString(date, timeZone);
     const end = add(start, { minutes: 30 });
     const event = {
       summary: "Appointment API Test",
       description: "Hello, this is a test appointment",
       start: {
         dateTime: formatRFC3339(start),
-        timeZone,
       },
       end: {
         dateTime: formatRFC3339(end),
-        timeZone,
       },
       attendees: [
         {
