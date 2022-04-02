@@ -5,9 +5,9 @@ const formatRFC3339 = require("date-fns/formatRFC3339");
 const sub = require("date-fns/sub");
 const add = require("date-fns/add");
 const {
-  models: { User },
+  models: { User, Event },
 } = require("../db");
-const { parseGoogleDate } = require("../utils/date");
+const { parseGoogleDate, getDateFromDateString } = require("../utils/date");
 
 calendarRouter.get("/:userId", async (req, res) => {
   try {
@@ -96,6 +96,71 @@ calendarRouter.get("/:userId", async (req, res) => {
       }
     }
     res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+calendarRouter.post("/:userId/event", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const businessUser = await User.findById(userId);
+    const {
+      _id: businessId,
+      profile: businessProfile,
+      tokens,
+      config: { appointmentCalendarId },
+    } = businessUser;
+    const {
+      _id: clientId,
+      config: { timeZone },
+      profile: clientProfile,
+    } = req.user;
+
+    const { date } = req.body;
+    const start = getDateFromDateString(date);
+    const end = add(start, { minutes: 30 });
+    const event = {
+      summary: "Appointment API Test",
+      description: "Hello, this is a test appointment",
+      start: {
+        dateTime: formatRFC3339(start),
+        timeZone,
+      },
+      end: {
+        dateTime: formatRFC3339(end),
+        timeZone,
+      },
+      attendees: [
+        {
+          email: clientProfile.email,
+          displayName: clientProfile.name,
+          responseStatus: "accepted",
+        },
+        {
+          email: businessProfile.email,
+        },
+      ],
+    };
+    const oauth20Client = getOAuth2Client(tokens);
+    const calendar = google.calendar({ version: "v3", auth: oauth20Client });
+
+    const eventResponse = await calendar.events.insert({
+      calendarId: appointmentCalendarId,
+      sendNotifications: true,
+      sendUpdates: "all",
+      requestBody: event,
+    });
+
+    await Event.create({
+      businessId,
+      clientId,
+      googleEventId: eventResponse.data.id,
+      start,
+      end,
+    });
+
+    res.status(201).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
