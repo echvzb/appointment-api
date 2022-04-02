@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
   config: {
     appointmentCalendarId: String,
     timeZone: String,
+    isBusinessAccount: Boolean,
   },
   profile: {
     name: String,

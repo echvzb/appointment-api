@@ -17,9 +17,9 @@ router.get("/config", (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
   } else {
     const {
-      config: { timeZone },
+      config: { timeZone, isBusinessAccount },
     } = req.user;
-    res.json({ timeZone });
+    res.json({ timeZone, isBusinessAccount });
   }
 });
 
