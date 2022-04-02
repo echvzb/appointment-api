@@ -14,9 +14,9 @@ calendarRouter.get("/:userId", async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId);
     const {
-      tokens,
       config: { timeZone },
-    } = user;
+    } = req.user;
+    const { tokens } = user;
     const { date } = req.query;
     const [year, month, day] = date.split("-");
     const parsedDate = new Date(Date.UTC(+year, +month - 1, +day, 0, 0, 0, 0));
