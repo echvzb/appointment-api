@@ -53,8 +53,8 @@ router.patch("/config", async (req, res) => {
 router.get("/all", async (req, res) => {
   try {
     const users = await User.find(
-      { _id: { $ne: req.user._id } },
-      "_id profile"
+      { _id: { $ne: req.user._id }, "config.isBusinessAccount": true },
+      "_id profile config"
     );
     res.json(users);
   } catch (error) {
