@@ -7,8 +7,11 @@ router.get("/", (req, res) => {
   if (!req.user) {
     res.status(401).json({ error: "Unauthorized" });
   } else {
-    const { profile } = req.user;
-    res.json(profile);
+    const {
+      profile,
+      config: { isBusinessAccount },
+    } = req.user;
+    res.json({ ...profile, isBusinessAccount });
   }
 });
 
@@ -54,7 +57,7 @@ router.get("/all", async (req, res) => {
   try {
     const users = await User.find(
       { _id: { $ne: req.user._id }, "config.isBusinessAccount": true },
-      "_id profile config"
+      "_id profile"
     );
     res.json(users);
   } catch (error) {
