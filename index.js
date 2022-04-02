@@ -1,7 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
-const session = require("express-session");
 const passport = require("passport");
+const cors = require("./cors");
 
 if (process.env.NODE_ENV !== "production") require("dotenv").config();
 
@@ -12,15 +12,11 @@ const routes = require("./routes");
 db.start();
 
 app
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
+  .use(cors)
   .use(logger("dev"))
-  .use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-    })
-  )
-  .use(passport.authenticate("session"))
+  .use(passport.initialize())
   .use("/api/v1", routes);
 
 const PORT = process.env.PORT || 8000;

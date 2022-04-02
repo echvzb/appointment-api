@@ -1,18 +1,14 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
+const protectedRouter = express.Router();
+const passport = require("passport");
+
+protectedRouter.use(passport.authenticate("jwt", { session: false }));
+
+protectedRouter.use("/calendar", require("./calendar"));
+protectedRouter.use("/user", require("./user"));
 
 router.use("/auth", require("./auth"));
-
-router.get("/user", (req, res) => {
-  if (!req.user) res.status(401).json({ error: "Unauthorized" });
-  else res.json(req.user);
-});
-router.get("/logout", (req, res) => {
-  if (req.user) {
-    req.logout();
-  } else {
-    res.status(401);
-  }
-  res.end();
-});
+router.use(protectedRouter);
 
 module.exports = router;
