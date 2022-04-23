@@ -42,12 +42,14 @@ calendarRouter.get("/:userId", async (req, res) => {
 
     for (const item of items) {
       let isDeclined = false;
-      for (const attendee of item.attendees) {
-        if (attendee.self) {
-          if (attendee.responseStatus === "declined") {
-            isDeclined = true;
+      if (item.attendees) {
+        for (const attendee of item.attendees) {
+          if (attendee.self) {
+            if (attendee.responseStatus === "declined") {
+              isDeclined = true;
+            }
+            break;
           }
-          break;
         }
       }
       if (item.start.dateTime && !isDeclined) {
