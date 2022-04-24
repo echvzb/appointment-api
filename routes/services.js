@@ -41,6 +41,25 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const service = await Service.findOne(
+      {
+        _id: req.params.id,
+        businessId: req.user._id,
+      },
+      "name timeInMinutes"
+    );
+    if (!service) {
+      res.status(404).json({ error: "Service not found" });
+    } else {
+      res.status(200).json(service);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
