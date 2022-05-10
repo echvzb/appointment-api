@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const {
-  models: { User },
+  models: { User, Service },
 } = require("../db");
 
 router.get("/", (req, res) => {
@@ -73,6 +73,23 @@ router.get("/:userId", async (req, res) => {
       res.status(404).json({ error: "User not found" });
     } else {
       res.json(user.profile);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/:userId/services", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const services = await Service.find(
+      { businessId: userId },
+      "name timeInMinutes"
+    );
+    if (!services) {
+      res.json([]);
+    } else {
+      res.json(services);
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
