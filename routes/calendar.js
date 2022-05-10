@@ -5,7 +5,7 @@ const formatRFC3339 = require("date-fns/formatRFC3339");
 const sub = require("date-fns/sub");
 const add = require("date-fns/add");
 const {
-  models: { User, Event },
+  models: { User, Event, Service },
 } = require("../db");
 const { parseGoogleDate, getDateFromDateString } = require("../utils/date");
 
@@ -106,61 +106,65 @@ calendarRouter.get("/:userId", async (req, res) => {
 calendarRouter.post("/:userId/event", async (req, res) => {
   try {
     const { userId } = req.params;
+    const { date, serviceId } = req.body;
     const businessUser = await User.findById(userId);
-    const {
-      _id: businessId,
-      profile: businessProfile,
-      tokens,
-      config: { appointmentCalendarId },
-    } = businessUser;
-    const {
-      _id: clientId,
-      config: { timeZone },
-      profile: clientProfile,
-    } = req.user;
+    const service = await Service.findById(serviceId);
+    if (!businessUser || !service) {
+      res.status(404).json({ error: "User or service not found" });
+    } else {
+      const {
+        _id: businessId,
+        profile: businessProfile,
+        tokens,
+      } = businessUser;
+      const {
+        _id: clientId,
+        config: { timeZone },
+        profile: clientProfile,
+      } = req.user;
 
-    const { date } = req.body;
-    const start = getDateFromDateString(date, timeZone);
-    const end = add(start, { minutes: 30 });
-    const event = {
-      summary: "Appointment API Test",
-      description: "Hello, this is a test appointment",
-      start: {
-        dateTime: formatRFC3339(start),
-      },
-      end: {
-        dateTime: formatRFC3339(end),
-      },
-      attendees: [
-        {
-          email: clientProfile.email,
-          displayName: clientProfile.name,
-          responseStatus: "accepted",
+      const start = getDateFromDateString(date, timeZone);
+      const end = add(start, { minutes: service.timeInMinutes });
+      const event = {
+        summary: service.name + " - Appointment App",
+        description: "",
+        start: {
+          dateTime: formatRFC3339(start),
         },
-        {
-          email: businessProfile.email,
+        end: {
+          dateTime: formatRFC3339(end),
         },
-      ],
-    };
-    const oauth20Client = getOAuth2Client(tokens);
-    const calendar = google.calendar({ version: "v3", auth: oauth20Client });
+        attendees: [
+          {
+            email: clientProfile.email,
+            displayName: clientProfile.name,
+            responseStatus: "accepted",
+          },
+          {
+            email: businessProfile.email,
+          },
+        ],
+      };
+      const oauth20Client = getOAuth2Client(tokens);
+      const calendar = google.calendar({ version: "v3", auth: oauth20Client });
 
-    const eventResponse = await calendar.events.insert({
-      calendarId: appointmentCalendarId,
-      sendNotifications: true,
-      sendUpdates: "all",
-      requestBody: event,
-    });
+      const eventResponse = await calendar.events.insert({
+        calendarId: "primary",
+        sendNotifications: true,
+        sendUpdates: "all",
+        requestBody: event,
+      });
 
-    await Event.create({
-      businessId,
-      clientId,
-      googleEventId: eventResponse.data.id,
-      start,
-      end,
-    });
+      await Event.create({
+        businessId,
+        clientId,
+        googleEventId: eventResponse.data.id,
+        start,
+        end,
+      });
 
-    res.status(201).end();
+      res.status(201).json({ eventResponse, start, end });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
