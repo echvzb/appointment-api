@@ -2,6 +2,7 @@ const cors = require("cors");
 
 const originsAllowed = [
   /^https:\/\/appointment-thaunze.netlify.app$/i,
+  /^https:\/\/appointment.thaunze.me$/i,
   /^https:\/\/(\d|[a-z])+--appointment-thaunze.netlify.app$/i,
 ];
 
